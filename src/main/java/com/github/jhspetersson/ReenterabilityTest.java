@@ -8,7 +8,7 @@ import org.openjdk.jcstress.infra.results.IntResult2;
 @Outcome(id = "2, 1", expect = Expect.ACCEPTABLE)
 @Outcome(expect = Expect.FORBIDDEN)
 @State
-public class ConcurrencyTest {
+public class ReenterabilityTest {
 
     private int value;
 
@@ -19,18 +19,26 @@ public class ConcurrencyTest {
     @Actor
     public void actor1(IntResult2 r) {
         locker.lock(key);
+        locker.lock(key);
+        locker.lock(key);
 
         r.r1 = ++value;
 
+        locker.unlock(key);
+        locker.unlock(key);
         locker.unlock(key);
     }
 
     @Actor
     public void actor2(IntResult2 r) {
         locker.lock(key);
+        locker.lock(key);
+        locker.lock(key);
 
         r.r2 = ++value;
 
+        locker.unlock(key);
+        locker.unlock(key);
         locker.unlock(key);
     }
 }
